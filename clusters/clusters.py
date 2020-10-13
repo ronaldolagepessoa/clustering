@@ -30,7 +30,7 @@ class KMeansCluster:
         df1.cluster = df1.cluster.astype('object')
         columns = df1.select_dtypes(include=['object']).columns
         return px.parallel_categories(df1.sort_values('cluster'), dimensions=columns, 
-        title='Proporção dos atributos categóricos'))
+        title='Proporção dos atributos categóricos')
 
     def plot_sunburst(self):
         df1 = self.df.copy()
