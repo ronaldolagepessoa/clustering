@@ -23,7 +23,7 @@ class KMeansCluster:
 
         X_all = np.append(X_num, X_bin, axis=1)
 
-        df['cluster'] = KMeans(n_clusters=self.n_clusters).fit_predict(X_all)
+        self.df['cluster'] = KMeans(n_clusters=self.n_clusters).fit_predict(X_all)
     
     def plot_parallel_categories(self):
         df1 = self.df.copy()
