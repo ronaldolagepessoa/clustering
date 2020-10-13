@@ -47,7 +47,6 @@ class KMeansCluster:
 
     def plot_box(self):
         df1 = self.df.copy()
-        df1.cluster = df1.cluster.astype('object')
         columns = df1.select_dtypes(exclude=['object']).columns
         df1 = df1[columns]
         df1 = df1.set_index('cluster').stack().reset_index(name='valor')
