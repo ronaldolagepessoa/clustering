@@ -10,20 +10,21 @@ import plotly.express as px
 class KMeansCluster:
     
     def __init__(self, DataFrame, n_clusters=8, eliminate_columns=None):
-        self.df = DataFrame
+        self.df = DataFrame.copy()
         self.n_clusters = n_clusters
         if eliminate_columns is not None:
             self.df.drop(eliminate_columns, axis=1, inplace=True)
+        self.columns = list(self.df.columns)
         
-        onehot = OneHotEncoder(sparse=False, drop="first")
-        X_bin = onehot.fit_transform(self.df.select_dtypes(include=['object']))
+        self.onehot = OneHotEncoder(sparse=False, drop="first")
+        X_bin = self.onehot.fit_transform(self.df.select_dtypes(include=['object']))
 
-        mmscaler = MinMaxScaler()
-        X_num = mmscaler.fit_transform(self.df.select_dtypes(exclude=['object']))
+        self.mmscaler = MinMaxScaler()
+        X_num = self.mmscaler.fit_transform(self.df.select_dtypes(exclude=['object']))
 
         X_all = np.append(X_num, X_bin, axis=1)
-
-        self.df['cluster'] = KMeans(n_clusters=self.n_clusters).fit_predict(X_all)
+        self.model = KMeans(n_clusters=self.n_clusters)
+        self.df['cluster'] = self.model.fit_predict(X_all)
     
     def plot_parallel_categories(self):
         df1 = self.df.copy()
@@ -53,12 +54,24 @@ class KMeansCluster:
         return px.box(df1, x='cluster', y='valor', color='level_1',  notched=True, 
         title='Distribuição dos atributos numéricos')
 
+    def predict(self, lista):
+        df = pd.DataFrame({column: [item] for column, item in zip(self.df.columns, lista)})
+        X_bin = self.onehot.transform(df.select_dtypes(include=['object']))
+        X_num = self.mmscaler.transform(df.select_dtypes(exclude=['object']))
+        X_all = np.append(X_num, X_bin, axis=1)
+        return self.model.predict(X_all)[0]
+
+
 
 
 if __name__ == '__main__':
     df = pd.read_csv('https://raw.githubusercontent.com/ronaldolagepessoa/data_science/master/dados/airbnb_ny2.csv')
     model = KMeansCluster(df, eliminate_columns=['nome', 'bairro', 'latitude', 'longitude'])
-    plot = model.plot_bar() 
-    plot.show()
+    #nome,distrito,bairro,latitude,longitude,tipo_quarto,preco,minimo_noites,numero_reviews,numero_reservas,disponibilidade_anual
+    #Clean & quiet apt home by the park,Brooklyn,Kensington,40.64749000000001,-73.97237,Quarto privado,149,1,9,6,365
+    # plot = model.plot_sunburst() 
+    # plot.show()
+    print(model.predict(['Brooklyn', 'Quarto privado', 149, 1, 9, 6, 365]))
+    print(model.columns)
 
     
