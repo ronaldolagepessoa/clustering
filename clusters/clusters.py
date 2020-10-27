@@ -14,6 +14,7 @@ class KMeansCluster:
         self.n_clusters = n_clusters
         if eliminate_columns is not None:
             self.df.drop(eliminate_columns, axis=1, inplace=True)
+        self.df.dropna(axis=0, inplace=True)
         self.columns = list(self.df.columns)
         
         self.onehot = OneHotEncoder(sparse=False, drop="first")
